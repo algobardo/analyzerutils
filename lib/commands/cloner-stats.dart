@@ -83,7 +83,7 @@ class SemanticWorker extends Command {
         if (wr is CloneResult) {
           StripperVisitor v = (wr.transformer as StripperVisitor);
           String name = "${v.annotationLevel} \t ${v.seed}";
-          runProgram(name, wr.destination, options.entryFile);
+          runProgram(name, wr.destination, options.entryFile.first);
         }
       }
     });
