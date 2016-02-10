@@ -30,7 +30,10 @@ class SemanticCommandOptions {
     return _package;
   }
 
-  SemanticCommandOptions.args(this.projectDirectory, this.entryFile, this.inline);
+  SemanticCommandOptions.args(this.projectDirectory, this.entryFile, this.inline) {
+    if(projectDirectory == null || entryFile == null)
+      throw new UsageException("Options 'dir' and 'entry' are mandatory", "--dir <directory> --entry <entry>");
+  }
 
   static void createOptions(ArgParser a) {
     a.addOption('dir', help: "Project directory");
@@ -39,15 +42,7 @@ class SemanticCommandOptions {
   }
 
 
-  factory SemanticCommandOptions.parse(ArgResults opts) {
-    if(opts["dir"] == null || opts["entry"] == null)
-      throw new UsageException("Options 'dir' and 'entry' are mandatory", "--dir <directory> --entry <entry>");
-    return new SemanticCommandOptions.args(
-        opts["dir"],
-        opts["entry"],
-        opts["inline"]
-    );
-  }
+  SemanticCommandOptions.parse(ArgResults opts) : this.args(opts["dir"], opts["entry"], opts["inline"]);
 
 }
 
@@ -57,7 +52,7 @@ class DesugarCommandOptions extends SemanticCommandOptions {
   bool ignoreCache;
   bool push = true; //TODO: See if this can be enabled by default considering the casa machines
 
-  DesugarCommandOptions.args(projectDirectory, entryFile, inline, this.destination, this.ignoreCache) : super.args(projectDirectory, entryFile, inline);
+  DesugarCommandOptions.args(this.destination, this.ignoreCache, ArgResults o) : super.parse(o);
 
   static void createOptions(ArgParser a) {
     SemanticCommandOptions.createOptions(a);
@@ -65,17 +60,7 @@ class DesugarCommandOptions extends SemanticCommandOptions {
     a.addFlag('ignore-cache', help: "Ignore github cache branch", defaultsTo: true);
   }
 
-
-  factory DesugarCommandOptions.parse(ArgResults opts) {
-    SemanticCommandOptions sup = new SemanticCommandOptions.parse(opts);
-    return new DesugarCommandOptions.args(
-        sup.projectDirectory,
-        sup.entryFile,
-        sup.inline,
-        opts["dest"],
-        opts["ignore-cache"]
-    );
-  }
+  DesugarCommandOptions.parse(ArgResults opts) : this.args(opts["dest"], opts["ignore-cache"], opts);
 
 }
 
@@ -91,10 +76,6 @@ class SyntacticCommandOptions {
   }
 
 
-  factory SyntacticCommandOptions.parse(ArgResults opts) {
-    return new SyntacticCommandOptions.args(
-        projectDirectory: opts["dir"]
-    );
-  }
+  SyntacticCommandOptions.parse(ArgResults opts) : this.args(projectDirectory: opts["dir"]);
 
 }
