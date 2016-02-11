@@ -28,16 +28,53 @@ class TransformCloneWorker implements ProgramWorker {
   WorkResult apply(ProgramInfo p) {
     // We clone the folder first
 
-    if(path.isWithin(p.programRoot.absolute.path, destination.absolute.path))
+    if (path.isWithin(p.programRoot.absolute.path, destination.absolute.path))
       throw new Exception("Cloning path inside project root: ${destination.absolute.path}");
 
     //Cloning the folder is only needed because of resources
     DirectoryUtils.recursiveFolderCopySync(p.programRoot.absolute.path, destination.absolute.path);
 
+    // We modify the pubspec, so that all the path dependencies are mapped to correct paths
+    fixPubspec(p);
+
     // And then we clone on top;
     new Cloner(destination, transformer, p, inline);
     transformer.forEach((ProgramVisitor v) => v.transformationFinished());
     return new CloneResult(p, destination.absolute.path, transformer.last);
+  }
+
+
+  void fixPubspec(ProgramInfo p) {
+    // We inject the pubspec dependency if not present
+    File pubspecFile = new File(path.join(destination.absolute.path, "pubspec.yaml"));
+    if (!pubspecFile.existsSync()) {
+      throw new Exception("Pubspec file not found in destination $pubspecFile");
+    }
+
+    var pubspec = JSON.decode(JSON.encode(yaml.loadYaml(pubspecFile.readAsStringSync())));
+    Map deps = pubspec["dependencies"];
+    Map devDeps = pubspec["dev_dependencies"];
+
+    if (deps != null) {
+      for (String packageName in deps.keys) {
+        if (deps[packageName] is Map && deps[packageName].containsKey("path")) {
+          String pathLoc = deps[packageName]["path"];
+          print("pathloc:$pathLoc");
+          deps[packageName]["path"] = path.relative(path.join(p.programRoot.absolute.path, pathLoc), from: pubspecFile.absolute.path);
+        }
+      }
+    }
+    if (devDeps != null) {
+      for (String packageName in devDeps.keys) {
+        if (devDeps[packageName] is Map && devDeps[packageName].containsKey("path")) {
+          String pathLoc = devDeps[packageName]["path"];
+          print("pathloc:$pathLoc");
+          devDeps[packageName]["path"] = path.relative(path.join(p.programRoot.absolute.path, pathLoc), from: pubspecFile.absolute.path);
+        }
+      }
+    }
+
+    pubspecFile.writeAsStringSync(JSON.encode(pubspec));
   }
 }
 
