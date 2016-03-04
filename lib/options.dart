@@ -19,18 +19,19 @@ class SemanticCommandOptions {
 
   List<String> entryFile;
   bool inline;
+  bool allowNonPackageFolderName;
 
   String get package {
     if (_package == null)
       _package = loadYaml(
           new File(pubspec).readAsStringSync())["name"];
 
-    if (_package != path.basename(projectDirectory)) throw new Exception(
+    if (!allowNonPackageFolderName && _package != path.basename(projectDirectory)) throw new Exception(
         "Package directory (${path.basename(projectDirectory)}) has not the same name as package (${_package})");
     return _package;
   }
 
-  SemanticCommandOptions.args(this.projectDirectory, this.entryFile, this.inline) {
+  SemanticCommandOptions.args(this.projectDirectory, this.entryFile, this.inline, [this.allowNonPackageFolderName = false]) {
     if(projectDirectory == null || entryFile == null)
       throw new UsageException("Options 'dir' and 'entry' are mandatory", "--dir <directory> --entry <entry>");
   }
