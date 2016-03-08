@@ -28,16 +28,18 @@ class ErrorCollector extends AnalysisErrorListener {
 
 class AnalyserUtils {
 
-  static Future<ProgramInfo> resolve(SemanticCommandOptions options) {
+  static Future<ProgramInfo> resolve(SemanticCommandOptions options, [AnalysisOptionsImpl resolverOptions]) {
     AssetId primaryInputId = new AssetId(options.package, options.entryFile.first);
     Asset primaryInput = new Asset.fromFile(
         primaryInputId, new File("${options.projectDirectory}/${primaryInputId.path}"));
     BinTransformImpl transform = new BinTransformImpl(options, primaryInput);
 
-    AnalysisOptionsImpl resolverOptions = new AnalysisOptionsImpl()
-      ..cacheSize = 512 // # of sources to cache ASTs for.
-      ..preserveComments = true
-      ..analyzeFunctionBodies = true;
+    if(resolverOptions == null) {
+      resolverOptions = new AnalysisOptionsImpl()
+        ..cacheSize = 512 // # of sources to cache ASTs for.
+        ..preserveComments = true
+        ..analyzeFunctionBodies = true;
+    }
 
     Resolvers resolvers = new Resolvers(dartSdkDirectory, options: resolverOptions);
     return resolvers.get(transform, options.entryFile.map((String s) => new AssetId(options.package, s)).toList()).then((Resolver r) => new ProgramInfo(r, r.getLibrary(primaryInputId), transform, new File(options.projectDirectory)));
