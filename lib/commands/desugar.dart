@@ -63,7 +63,10 @@ class DesugarWorker extends Command {
 
 
     // We always need to have a .git repository on the desugared version
-    DirectoryUtils.recursiveFolderCopySync(path.join(options.projectDirectory, ".git"), path.join(clonePath.path, ".git"));
+    String gitf = path.join(options.projectDirectory, ".git");
+    if(new Directory(gitf).existsSync()) {
+      DirectoryUtils.recursiveFolderCopySync(gitf, path.join(clonePath.path, ".git"));
+    }
     if(!options.ignoreCache && (cached && !options.inline)) { // Cashing inlining not supported, because this would require to add files ("git add..") to the git repository
       //We clone the original folder
       DirectoryUtils.recursiveFolderCopySync(options.projectDirectory, clonePath.path);
