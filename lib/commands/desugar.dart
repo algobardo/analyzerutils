@@ -36,6 +36,10 @@ class DesugarWorker extends Command {
       throw new UsageException("invalid desugar command\n${this.usage}", this.usage);
     }
     desugar(opts);
+
+    String dest = path.join(opts.destination, path.basename(opts.projectDirectory));
+    ProcessResult last = pubget(dest, false);
+    if (last.exitCode != 0) throw new Exception("Failed pub get in $dest");
   }
 
 
