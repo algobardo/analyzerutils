@@ -5,7 +5,6 @@ import "dart:io";
 
 import 'package:path/path.dart' as path;
 
-
 String cmdrun(String cmd, String wd) {
   var split = cmd.split(" ");
   var p = Process.runSync(
@@ -17,6 +16,12 @@ String cmdrun(String cmd, String wd) {
       runInShell: true);
   if (p.exitCode != 0) throw new Exception("Failed $cmd in $wd \n    - stdout ${p.stdout}\n    - stderr ${p.stderr}");
   return p.stdout.toString();
+}
+
+ProcessResult pubget(String dir, [bool fail = true]) {
+  ProcessResult res = Process.runSync("pub",["get"], workingDirectory: dir);
+  if (fail && res.exitCode != 0) throw new Exception("Failed pub get in directory $dir");
+  return res;
 }
 
 class DirectoryUtils {
