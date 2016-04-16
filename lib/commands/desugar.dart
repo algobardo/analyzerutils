@@ -1,5 +1,6 @@
 library analyzerutils.commands.desugar;
 
+import "dart:async";
 import "dart:io";
 
 import 'package:analyzer/src/generated/element.dart';
@@ -35,11 +36,11 @@ class DesugarWorker extends Command {
     catch (e) {
       throw new UsageException("invalid desugar command\n${this.usage}", this.usage);
     }
-    desugar(opts);
-
-    String dest = path.join(opts.destination, path.basename(opts.projectDirectory));
-    ProcessResult last = pubget(dest, false);
-    if (last.exitCode != 0) throw new Exception("Failed pub get in $dest");
+    desugar(opts).then((_) {
+      String dest = path.join(opts.destination, path.basename(opts.projectDirectory));
+      ProcessResult last = pubget(dest, false);
+      if (last.exitCode != 0) throw new Exception("Failed pub get in $dest");
+    });
   }
 
 
@@ -47,7 +48,7 @@ class DesugarWorker extends Command {
       .getFile(p.resolver.getSourceAssetId(l))
       .absolute.path;
 
-  void desugar(DesugarCommandOptions options) {
+  Future desugar(DesugarCommandOptions options) {
     Directory clonePath = new Directory(path.join(
         options.destination, path.basename(options.projectDirectory)));
 
@@ -75,6 +76,7 @@ class DesugarWorker extends Command {
       //We clone the original folder
       DirectoryUtils.recursiveFolderCopySync(options.projectDirectory, clonePath.path);
       cmdrun("git checkout -f ${currentrev}_desugared", clonePath.path);
+      return new Future.value();
     }
     else {
       clonePath.createSync(recursive: true);
@@ -82,7 +84,7 @@ class DesugarWorker extends Command {
       ProgramVisitor deawait = new DeawaiterVisitor();
 
       ProgramWorker pw = new TransformCloneWorker(new File(clonePath.path), [desugar, deawait], options.inline);
-      AnalyserUtils.resolve(options).then((ProgramInfo prog) {
+      return AnalyserUtils.resolve(options).then((ProgramInfo prog) {
 
         pw.apply(prog);
 
