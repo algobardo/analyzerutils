@@ -39,7 +39,7 @@ class SemanticCommandOptions {
   static void createOptions(ArgParser a) {
     a.addOption('dir', help: "Project directory");
     a.addOption('entry', help: "Project entry point", allowMultiple: true);
-    a.addFlag('inline', help: "Inline packages", defaultsTo: true);
+    a.addFlag('inline', help: "Inline packages", defaultsTo: false);
   }
 
 
