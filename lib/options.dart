@@ -53,7 +53,7 @@ class SemanticCommandOptions {
     }
     if (opts["dir"] != null)
       this.projectDirectory = opts["dir"];
-    if (opts["entry"] != null)
+    if (opts["entry"] != null && opts["entry"].isNotEmpty)
       this.entryFile = opts["entry"];
     this.inline = opts["inline"];
     if(projectDirectory == null || entryFile == null)
