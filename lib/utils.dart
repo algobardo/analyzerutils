@@ -24,6 +24,12 @@ ProcessResult pubget(String dir, [bool fail = true]) {
   return res;
 }
 
+ProcessResult pubbuild(String dir, [bool fail = true]) {
+  ProcessResult res = Process.runSync("pub",["build"], workingDirectory: dir);
+  if (fail && res.exitCode != 0) throw new Exception("Failed pub build in directory $dir");
+  return res;
+}
+
 class DirectoryUtils {
   static bool isBadFolder(String pathString) {
 
