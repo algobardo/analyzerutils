@@ -40,7 +40,7 @@ class AnalyserUtils {
         ..preserveComments = true
         ..analyzeFunctionBodies = true;
     }
-
+    print("Inferred dart-sdk directory: ${dartSdkDirectory}");
     Resolvers resolvers = new Resolvers(dartSdkDirectory, options: resolverOptions);
     return resolvers.get(transform, options.entryFile.map((String s) => new AssetId(options.package, s)).toList()).then((Resolver r) => new ProgramInfo(r, r.getLibrary(primaryInputId), transform, new File(options.projectDirectory)));
   }

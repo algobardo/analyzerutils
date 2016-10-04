@@ -19,13 +19,13 @@ String cmdrun(String cmd, String wd) {
 }
 
 ProcessResult pubget(String dir, [bool fail = true]) {
-  ProcessResult res = Process.runSync("pub",["get"], workingDirectory: dir);
+  ProcessResult res = Process.runSync("pub",["get"], workingDirectory: dir, runInShell: true, environment: Platform.environment);
   if (fail && res.exitCode != 0) throw new Exception("Failed pub get in directory $dir");
   return res;
 }
 
 ProcessResult pubbuild(String dir, [bool fail = true]) {
-  ProcessResult res = Process.runSync("pub",["build"], workingDirectory: dir);
+  ProcessResult res = Process.runSync("pub",["build"], workingDirectory: dir, runInShell: true, environment: Platform.environment);
   if (fail && res.exitCode != 0) throw new Exception("Failed pub build in directory $dir");
   return res;
 }
