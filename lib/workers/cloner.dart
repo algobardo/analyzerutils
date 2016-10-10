@@ -158,8 +158,7 @@ class Cloner {
       CompilationUnit clone = node.accept(new ImportReplacerVisitor(this));
       CompilationUnit instrument = clone;
       transformer.forEach((ProgramVisitor pv) {
-        if (instrument != null) {
-          pv.transforming(cu, getSourcePath(cu));
+        if (instrument != null && pv.shouldTransform(cu, getSourcePath(cu))) {
           instrument = instrument.accept(pv);
         }
       });

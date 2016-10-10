@@ -29,8 +29,5 @@ class DeawaiterVisitor extends RecursiveAstVisitor implements ProgramVisitor {
 
   }
 
-  void transforming(cu, String originalPath) {
-
-  }
+  bool shouldTransform(cu, String originalPath) => true;
 }
-

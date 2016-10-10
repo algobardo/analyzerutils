@@ -9,7 +9,6 @@ class StripperState {
 }
 
 class StripperVisitor extends IncrementalAstCloner implements ProgramVisitor {
-
   final StripperState state;
   final double annotationLevel;
   final Random rnd;
@@ -190,8 +189,5 @@ class StripperVisitor extends IncrementalAstCloner implements ProgramVisitor {
     printStats();
   }
 
-  void transforming(cu, String originalPath) {
-
-  }
-
+  bool shouldTransform(cu, String originalPath) => true;
 }

@@ -15,9 +15,7 @@ part 'deawaiter.dart';
 part 'desugarer.dart';
 part 'stripper.dart';
 
-
 class IdentityTokenMap extends TokenMap {
-
   IdentityTokenMap();
 
   Token get(Token key) => key;
@@ -26,8 +24,6 @@ class IdentityTokenMap extends TokenMap {
 }
 
 abstract class ProgramVisitor extends Object with AstVisitor<AstNode> {
-
-  void transforming(CompilationUnitElement cu, String originalPath);
-
+  bool shouldTransform(CompilationUnitElement cu, String originalPath);
   void transformationFinished();
 }

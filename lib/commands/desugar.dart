@@ -28,19 +28,21 @@ class DesugarWorker extends Command {
   }
 
   // [run] may also return a Future.
-  void run() {
+  Future<int> run() async {
     DesugarCommandOptions opts;
     try {
       opts = new DesugarCommandOptions.parse(this.argResults);
-    }
-    catch (e) {
+    } catch (e) {
       throw new UsageException("invalid desugar command\n${this.usage}", this.usage);
     }
-    desugar(opts).then((_) {
-      String dest = path.join(opts.destination, path.basename(opts.projectDirectory));
-      ProcessResult last = pubget(dest, false);
-      if (last.exitCode != 0) throw new Exception("Failed pub get in $dest");
-    });
+
+    await desugar(opts);
+
+    String dest = path.join(opts.destination, path.basename(opts.projectDirectory));
+    ProcessResult last = pubget(dest, false);
+    if (last.exitCode != 0) throw new Exception("Failed pub get in $dest");
+
+    return 0;
   }
 
 

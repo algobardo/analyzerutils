@@ -1,8 +1,6 @@
 part of analyzerutils.transformers;
 
 class DesugaringVisitor extends IncrementalAstCloner implements ProgramVisitor {
-
-
   HashSet<CompilationUnitElement> inlined = new HashSet();
 
   AstNode _cloneNode(AstNode node) {
@@ -23,14 +21,6 @@ class DesugaringVisitor extends IncrementalAstCloner implements ProgramVisitor {
 
   Token _mapToken(Token oldToken) {
     return oldToken;
-  }
-
-  List<Token> _mapTokens(List<Token> oldTokens) {
-    List<Token> newTokens = new List<Token>(oldTokens.length);
-    for (int index = 0; index < newTokens.length; index++) {
-      newTokens[index] = _mapToken(oldTokens[index]);
-    }
-    return newTokens;
   }
 
   DesugaringVisitor() : super(null, null, new IdentityTokenMap());
@@ -82,8 +72,5 @@ class DesugaringVisitor extends IncrementalAstCloner implements ProgramVisitor {
 
   }
 
-  void transforming(cu, String originalPath) {
-
-  }
-
+  bool shouldTransform(cu, String originalPath) => true;
 }

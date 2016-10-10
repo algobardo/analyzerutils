@@ -6,14 +6,13 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:args/src/usage_exception.dart';
 import 'package:path/path.dart' as path;
-import 'package:yaml/yaml.dart';
+import 'package:yaml/yaml.dart' as yaml;
 
 class GlobalOptions {
   static String outDirectory = "./out";
 }
 
 class SemanticCommandOptions {
-
   String projectDirectory;
   String _package;
   String get pubspec => path.join(projectDirectory, "pubspec.yaml");
@@ -24,7 +23,7 @@ class SemanticCommandOptions {
 
   String get package {
     if (_package == null)
-      _package = loadYaml(
+      _package = yaml.loadYaml(
           new File(pubspec).readAsStringSync())["name"];
 
     if (!allowNonPackageFolderName && _package != path.basename(projectDirectory)) throw new Exception(
@@ -59,11 +58,9 @@ class SemanticCommandOptions {
     if(projectDirectory == null || entryFile == null)
       throw new UsageException("Options 'dir' and 'entry' are mandatory", "--dir <directory> --entry <entry>");
   }
-
 }
 
 class DesugarCommandOptions extends SemanticCommandOptions {
-
   String destination;
   bool ignoreCache;
   bool push = true; //TODO: See if this can be enabled by default considering the casa machines
@@ -77,9 +74,7 @@ class DesugarCommandOptions extends SemanticCommandOptions {
   }
 
   DesugarCommandOptions.parse(ArgResults opts) : this.args(opts["dest"], opts["ignore-cache"], opts);
-
 }
-
 
 class SyntacticCommandOptions {
 
@@ -91,7 +86,5 @@ class SyntacticCommandOptions {
     a.addOption('dir', help: "Project directory");
   }
 
-
   SyntacticCommandOptions.parse(ArgResults opts) : this.args(projectDirectory: opts["dir"]);
-
 }

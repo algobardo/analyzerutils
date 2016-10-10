@@ -1,6 +1,5 @@
 library analyzerutils.analyzer.utils;
 
-
 import "dart:async";
 import "dart:io";
 
@@ -17,9 +16,6 @@ import 'options.dart';
 import 'program.dart';
 import 'transform.dart';
 
-
-
-
 class ErrorCollector extends AnalysisErrorListener {
   final errors = <AnalysisError>[];
 
@@ -28,13 +24,13 @@ class ErrorCollector extends AnalysisErrorListener {
 
 class AnalyserUtils {
 
-  static Future<ProgramInfo> resolve(SemanticCommandOptions options, [AnalysisOptionsImpl resolverOptions]) {
+  static Future<ProgramInfo> resolve(SemanticCommandOptions options, [AnalysisOptionsImpl resolverOptions]) async {
     AssetId primaryInputId = new AssetId(options.package, options.entryFile.first);
     Asset primaryInput = new Asset.fromFile(
         primaryInputId, new File("${options.projectDirectory}/${primaryInputId.path}"));
     BinTransformImpl transform = new BinTransformImpl(options, primaryInput);
 
-    if(resolverOptions == null) {
+    if (resolverOptions == null) {
       resolverOptions = new AnalysisOptionsImpl()
         ..cacheSize = 512 // # of sources to cache ASTs for.
         ..preserveComments = true
@@ -42,9 +38,11 @@ class AnalyserUtils {
     }
     print("Inferred dart-sdk directory: ${dartSdkDirectory}");
     Resolvers resolvers = new Resolvers(dartSdkDirectory, options: resolverOptions);
-    return resolvers.get(transform, options.entryFile.map((String s) => new AssetId(options.package, s)).toList()).then((Resolver r) => new ProgramInfo(r, r.getLibrary(primaryInputId), transform, new File(options.projectDirectory)));
-  }
 
+    List<AssetId> entryPoints = options.entryFile.map((String s) => new AssetId(options.package, s)).toList();
+    Resolver resolver = await resolvers.get(transform, entryPoints);
+    return new ProgramInfo(resolver, resolver.getLibrary(primaryInputId), transform, new File(options.projectDirectory));
+  }
 
   static FunctionDeclaration parseFunctionDeclaration(String source) {
     ErrorCollector errorCollector = new ErrorCollector();
