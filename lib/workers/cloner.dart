@@ -51,9 +51,9 @@ class TransformCloneWorker implements ProgramWorker {
       throw new Exception("Pubspec file not found in destination $pubspecFile");
     }
 
-    var pubspec = JSON.decode(JSON.encode(yaml.loadYaml(pubspecFile.readAsStringSync())));
-    Map deps = pubspec["dependencies"];
-    Map devDeps = pubspec["dev_dependencies"];
+    Map<String, dynamic> pubspec = JSON.decode(JSON.encode(yaml.loadYaml(pubspecFile.readAsStringSync())));
+    Map<String, dynamic> deps = pubspec["dependencies"];
+    Map<String, dynamic> devDeps = pubspec["dev_dependencies"];
 
     if (deps != null) {
       for (String packageName in deps.keys) {
