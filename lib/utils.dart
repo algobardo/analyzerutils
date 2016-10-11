@@ -1,9 +1,44 @@
 library dart_annotations.utils;
 
+import "dart:async";
 import "dart:collection";
 import "dart:io";
 
 import 'package:path/path.dart' as path;
+
+Future<int> execute(String entry, { List<String> args: null, bool withOutput: false, workingDirectory: null }) async {
+  List<String> command = new List<String>()..add(entry);
+  if (args != null) {
+    command.addAll(args);
+  }
+
+  if (workingDirectory != null) {
+    print(" - Executing cmd: (cd $workingDirectory; dart ${command.join(" ")})");
+  } else {
+    print(" - Executing cmd: dart ${command.join(" ")}");
+  }
+
+  Stopwatch watch = new Stopwatch()..start();
+  Process res = await Process.start("dart", command, runInShell: true, workingDirectory: workingDirectory);
+
+  if (withOutput) {
+    stdout.addStream(res.stdout);
+    stderr.addStream(res.stderr);
+  }
+
+  return res.exitCode.then((int exitCode) {
+    watch.stop();
+
+    print("   ... finished in ${watch.elapsedMilliseconds}ms\n");
+
+    return exitCode;
+  });
+}
+
+ProcessResult clone(String dir, String gitUrl, String gitRef) {
+  ProcessResult res = Process.runSync("git", <String>["clone", "-b", gitRef, gitUrl, dir]);
+  return res;
+}
 
 String cmdrun(String cmd, String wd) {
   var split = cmd.split(" ");
@@ -101,6 +136,4 @@ class DirectoryUtils {
     });
     return sub.isEmpty ? new Set() : sub.reduce((Set<File> a, Set<File> b) => new HashSet()..addAll(a)..addAll(b));
   }
-
-
 }
